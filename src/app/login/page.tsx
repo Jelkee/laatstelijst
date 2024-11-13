@@ -3,9 +3,9 @@ import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { CredentialResponse, GoogleOAuthProvider } from '@react-oauth/google';
 
 const Page: React.FC = () => {
+  // Handle successful login
   const handleLoginSuccess = (credentialResponse: CredentialResponse) => {
-    console.log("Login successful:", credentialResponse);
-    const idToken = credentialResponse.credential; // ID token for verification
+    const idToken = credentialResponse.credential;
     if (idToken) {
       fetch('/api/auth', {
         method: 'POST',
@@ -17,12 +17,14 @@ const Page: React.FC = () => {
         .then((res) => res.json())
         .then((data) => {
           console.log('User authenticated:', data);
+          // Save JWT token in localStorage
+          localStorage.setItem('jwt', data.token);
         });
-    } else {
-      console.error("No credential found in the response.");
     }
   };
+  
 
+  // Handle login failure
   const handleLoginFailure = (error: any) => {
     console.log("Login failed:", error);
   };

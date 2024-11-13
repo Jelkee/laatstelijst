@@ -12,7 +12,7 @@ export class DatabaseManager {
             connectionString: process.env.DATABASE_URL
         })
 
-        this._db = drizzle(pool);
+        this._db = drizzle(pool, { schema });
         return this._db;
     }
 }

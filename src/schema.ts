@@ -4,7 +4,8 @@ import crypto from "node:crypto";
 // Users Table
 export const user = pgTable('user', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),  // UUID type
-  name: text('name').notNull(),
+  givenName: text('given_name').notNull(),
+  familyName: text('family_name').notNull(),
   isAdmin: boolean('is_admin').default(false), // Admin status
   email: varchar('email', { length: 255 }).unique(), // Optional: Email for login
   createdAt: timestamp('created_at').defaultNow(), // Time user was created
