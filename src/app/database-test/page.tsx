@@ -8,25 +8,33 @@ interface User {
 }
 
 export async function getServerSideProps() {
-    const db = DatabaseManager.getDatabase();
-    
-    // Fetch the data with a type annotation
-    const res: User[] = await db.select({ id: user.id, name: user.name }).from(user);
+    try {
+        const db = DatabaseManager.getDatabase();
 
-    // Return the data as props for the page
-    return {
-        props: {
-            users: res,
-        },
-    };
+        // Fetch data on the server at request time (not build time)
+        const res: User[] = await db.select({ id: user.id, name: user.name }).from(user);
+
+        return {
+            props: {
+                users: res,
+            },
+        };
+    } catch (error) {
+        console.error("Error connecting to the database:", error);
+        return {
+            props: {
+                users: [],
+            },
+        };
+    }
 }
 
 export default function Page({ users }: { users: User[] }) {
     return (
         <div>
             {/* Map through the result and render user names */}
-            {users.map((rs: User) => (
-                <div key={rs.id}>{rs.name}</div>
+            {users.map((user) => (
+                <div key={user.id}>{user.name}</div>
             ))}
         </div>
     );
