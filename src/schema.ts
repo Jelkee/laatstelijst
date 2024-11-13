@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 
 // Users Table
 export const user = pgTable('user', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),  // UUID type
   name: text('name').notNull(),
   isAdmin: boolean('is_admin').default(false), // Admin status
   email: varchar('email', { length: 255 }).unique(), // Optional: Email for login
@@ -27,7 +27,7 @@ export const userGroup = pgTable('user_group', {
 // Song Submissions Table
 export const submission = pgTable('submission', {
   id: serial('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => user.id),
+  userId: text('user_id').notNull().references(() => user.id),  // user_id should be of type 'text' to match 'user.id'
   title: text('title').notNull(),
   artist: text('artist').notNull(),
   year: integer('year').notNull(),
