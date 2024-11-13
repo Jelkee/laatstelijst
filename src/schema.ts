@@ -19,7 +19,7 @@ export const group = pgTable('group', {
 
 // User-Groups Table (Many-to-Many relation)
 export const userGroup = pgTable('user_group', {
-  userId: integer('user_id').notNull().references(() => user.id),
+  userId: text('user_id').notNull().references(() => user.id),
   groupId: integer('group_id').notNull().references(() => group.id),
   role: varchar('role', { length: 50 }).default('member'), // User's role in the group, e.g., member, admin
 });
@@ -27,7 +27,7 @@ export const userGroup = pgTable('user_group', {
 // Song Submissions Table
 export const submission = pgTable('submission', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => user.id),
+  userId: text('user_id').notNull().references(() => user.id),
   title: text('title').notNull(),
   artist: text('artist').notNull(),
   year: integer('year').notNull(),
@@ -38,7 +38,7 @@ export const submission = pgTable('submission', {
 // Votes Table (Users vote on other users' submissions)
 export const vote = pgTable('vote', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => user.id), // Who is voting
+  userId: text('user_id').notNull().references(() => user.id), // Who is voting
   submissionId: integer('submission_id').notNull().references(() => submission.id), // Which submission is voted on
   points: integer('points').notNull(), // Points given to the submission
   createdAt: timestamp('created_at').defaultNow(), // When vote was cast
