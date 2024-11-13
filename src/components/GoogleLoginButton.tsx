@@ -18,7 +18,6 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onLoginSuccess, o
           onLoginFailure("Login failed"); // or you can pass an error message or custom error
         }
       }}
-      useOneTap
     />
   );
 };

@@ -7,7 +7,7 @@ const Page: React.FC = () => {
     console.log("Login successful:", credentialResponse);
     const idToken = credentialResponse.credential; // ID token for verification
     if (idToken) {
-      fetch('/api/auth/google', {
+      fetch('/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

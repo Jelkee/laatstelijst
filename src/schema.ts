@@ -1,8 +1,9 @@
 import { boolean, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import crypto from "node:crypto";
 
 // Users Table
 export const user = pgTable('user', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   isAdmin: boolean('is_admin').default(false), // Admin status
   email: varchar('email', { length: 255 }).unique(), // Optional: Email for login
