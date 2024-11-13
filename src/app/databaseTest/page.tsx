@@ -7,16 +7,25 @@ interface User {
     name: string | null;
 }
 
-export default async function Page() {
+export async function getServerSideProps() {
     const db = DatabaseManager.getDatabase();
     
     // Fetch the data with a type annotation
     const res: User[] = await db.select({ id: user.id, name: user.name }).from(user);
 
+    // Return the data as props for the page
+    return {
+        props: {
+            users: res,
+        },
+    };
+}
+
+export default function Page({ users }: { users: User[] }) {
     return (
         <div>
             {/* Map through the result and render user names */}
-            {res.map((rs: User) => (
+            {users.map((rs: User) => (
                 <div key={rs.id}>{rs.name}</div>
             ))}
         </div>
