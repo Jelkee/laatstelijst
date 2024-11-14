@@ -8,19 +8,42 @@ const Page: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isTokenChecked, setIsTokenChecked] = useState<boolean>(false); // Track if token check is completed
 
   const router = useRouter();
 
   // Check if the user is already logged in on page load
   useEffect(() => {
     const token = localStorage.getItem("jwt");
+
+    // If token exists, verify the token via API call
     if (token) {
-      // If token exists, redirect to the profile page
-      setIsAuthenticated(true);
-      router.push("/profile"); // Redirect to profile page
+      fetch("/api/session", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.authenticated) {
+            setIsAuthenticated(true); // If authenticated, set state
+            router.push("/profile"); // Redirect to profile page
+          } else {
+            setIsAuthenticated(false); // If token is invalid, reset state
+            localStorage.removeItem("jwt"); // Clear invalid token
+          }
+        })
+        .catch(() => {
+          setIsAuthenticated(false); // If error occurs during validation, reset state
+          localStorage.removeItem("jwt"); // Clear invalid token
+        })
+        .finally(() => {
+          setIsTokenChecked(true); // Token check is done
+        });
+    } else {
+      setIsTokenChecked(true); // If no token found, just set the check as done
     }
-    // Trigger snowflakes animation on page load
-    createSnowflakes();
   }, [router]);
 
   // Handle successful login
@@ -42,7 +65,7 @@ const Page: React.FC = () => {
           localStorage.setItem("jwt", data.token);
           setIsAuthenticated(true); // Set authenticated state
           setLoading(false);
-          router.push("/profile");  // Redirect to profile page after successful login
+          router.push("/profile"); // Redirect to profile page after successful login
         })
         .catch((err) => {
           console.error("Login failed:", err);
@@ -66,37 +89,14 @@ const Page: React.FC = () => {
     router.push("/"); // Redirect to home page or login page after logout
   };
 
-  // Function to create and animate snowflakes randomly (called once on page load)
-  const createSnowflakes = () => {
-    const numberOfSnowflakes = 30; // Number of snowflakes
-    const snowflakeContainer = document.getElementById("snowflakes-container");
-
-    if (snowflakeContainer) {
-      // Clear any existing snowflakes before adding new ones
-      snowflakeContainer.innerHTML = '';
-
-      for (let i = 0; i < numberOfSnowflakes; i++) {
-        const snowflake = document.createElement("div");
-        snowflake.classList.add("snowflake");
-
-        // Randomize position, size, and animation
-        const size = Math.random() * 10 + 5; // Snowflake size (5-15px)
-        const positionX = Math.random() * 100; // Random horizontal position (0-100%)
-        const animationDuration = Math.random() * 5 + 5; // Snowflake animation duration (5-10 seconds)
-        const delay = Math.random() * 5; // Random animation delay (0-5 seconds)
-
-        // Apply styles to the snowflake element
-        snowflake.style.width = `${size}px`;
-        snowflake.style.height = `${size}px`;
-        snowflake.style.left = `${positionX}%`;
-        snowflake.style.animationDuration = `${animationDuration}s`;
-        snowflake.style.animationDelay = `${delay}s`;
-
-        // Append snowflake to the container
-        snowflakeContainer.appendChild(snowflake);
-      }
-    }
-  };
+  // Show loader or error while checking token or on login
+  if (!isTokenChecked) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <span>Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>

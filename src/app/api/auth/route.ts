@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     // If the user does not exist, create a new user in the database
     if (!existingUser) {
       await db.insert(user).values({
+        id: payload.sub,
         givenName: payload.given_name ?? '', // Use the given name from the payload, or fallback to an empty string
         familyName: payload.family_name ?? '', // Use the family name from the payload, or fallback to an empty string
         email: payload.email, // Use the email from the payload
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Generate a JWT session token for the user
     const sessionToken = jwt.sign(
-      { email: payload.email, name: payload.name },
+      { email: payload.email, givenName: payload.given_name, familyName: payload.family_name, id: payload.sub },
       process.env.JWT_SECRET as string,
       { expiresIn: '1h' } // You can adjust the expiration time as needed
     );

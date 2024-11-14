@@ -1,4 +1,5 @@
-import { boolean, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { boolean, integer, pgTable, primaryKey, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 import crypto from "node:crypto";
 
 // Users Table
@@ -23,7 +24,21 @@ export const userGroup = pgTable('user_group', {
   userId: text('user_id').notNull().references(() => user.id),
   groupId: text('group_id').notNull().references(() => group.id),
   role: varchar('role', { length: 50 }).default('member'), // User's role in the group, e.g., member, admin
-});
+}, (t) => ({
+  pk: primaryKey({ columns: [t.userId, t.groupId]})
+}));
+
+export const userGroupRelations = relations(userGroup, ({ one }) => ({
+  user: one(user, {
+    fields: [userGroup.userId],
+    references: [user.id]
+  }),
+  supervisor: one(group, {
+    fields: [userGroup.groupId],
+    references: [group.id]
+  })
+}))
+
 
 // Song Submissions Table
 export const submission = pgTable('submission', {
