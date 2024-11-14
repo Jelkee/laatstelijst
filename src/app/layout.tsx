@@ -1,3 +1,5 @@
+import "@/app/styles/login.css";
+import NavigationBar from '@/components/NavigationBar';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -33,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <GoogleOAuthProvider clientId={clientId}>
+          <NavigationBar />
           {children}
         </GoogleOAuthProvider>
       </body>
