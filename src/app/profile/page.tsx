@@ -6,7 +6,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [newGroup, setNewGroup] = useState<string>("");
+  const [newGroup, setNewGroup] = useState<string>(""); // Track input for group ID
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -14,7 +14,6 @@ const ProfilePage = () => {
       try {
         setLoading(true); // Start loading
 
-        // Check if we are on the client side before accessing localStorage
         const token = typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
 
         if (!token) {
@@ -23,7 +22,6 @@ const ProfilePage = () => {
           return;
         }
 
-        // Fetch user profile and groups via a new API route instead of calling server functions directly
         const [userData, userGroups] = await Promise.all([
           fetch("/api/profile", { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
           fetch("/api/groups", { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
@@ -50,7 +48,6 @@ const ProfilePage = () => {
         return;
       }
 
-      // Check for client-side execution before accessing localStorage
       const token = typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
 
       if (!token) {
@@ -58,7 +55,6 @@ const ProfilePage = () => {
         return;
       }
 
-      // Call the API endpoint for joining the group instead of using a server function directly
       const response = await fetch("/api/joinGroup", {
         method: "POST",
         headers: {
@@ -83,7 +79,7 @@ const ProfilePage = () => {
   };
 
   if (loading) {
-    return <div className="text-center text-lg">Loading...</div>;
+    return <div className="text-center text-lg text-white">Loading...</div>;
   }
 
   if (error) {
@@ -91,48 +87,48 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center text-gray-900">Your Profile</h1>
+    <div className="max-w-4xl mx-auto p-6 h">
+      <h1 className="text-3xl font-semibold text-center text-white mb-8">Your Profile</h1>
 
       {user ? (
-        <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold text-gray-700">Profile Information</h2>
-          <p className="mt-2 text-lg text-gray-600">Name: {user.givenName} {user.familyName}</p>
-          <p className="mt-1 text-lg text-gray-600">Email: {user.email}</p>
+        <div className="bg-gray-800 text-white shadow-lg rounded-lg p-8 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-300 mb-4">Profile Information</h2>
+          <p className="text-lg text-gray-400">Name: {user.givenName} {user.familyName}</p>
+          <p className="text-lg text-gray-400">Email: {user.email}</p>
         </div>
       ) : (
-        <p className="mt-8 text-center text-gray-600">Loading your profile...</p>
+        <p className="text-center text-gray-500">Loading your profile...</p>
       )}
 
-      <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-semibold text-gray-700">Your Groups</h2>
+      <div className="bg-gray-800 text-white shadow-lg rounded-lg p-8">
+        <h2 className="text-2xl font-semibold text-gray-300 mb-4">Your Groups</h2>
         {groups.length > 0 ? (
-          <ul className="mt-4 space-y-3">
+          <ul className="space-y-4">
             {groups.map((group) => (
-              <li key={group.id} className="flex justify-between items-center text-lg text-gray-700">
-                <a href={`/group/${group.id}`} className="text-blue-600 hover:underline">
+              <li key={group.id} className="flex justify-between items-center text-lg text-gray-300">
+                <a href={`/group/${group.id}`} className="text-blue-400 hover:text-blue-500 transition-all duration-300">
                   {group.name}
                 </a>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mt-4 text-gray-600">You are not in any groups yet.</p>
+          <p className="text-gray-500">You are not in any groups yet.</p>
         )}
 
         <div className="mt-8">
-          <h3 className="text-xl font-semibold text-gray-700">Join a Group</h3>
-          <div className="mt-4 flex gap-2">
+          <h3 className="text-xl font-semibold text-gray-300">Join a Group</h3>
+          <div className="mt-4 flex gap-4">
             <input
               type="text"
               placeholder="Enter Group ID"
               value={newGroup}
               onChange={(e) => setNewGroup(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-600 rounded-md text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700"
             />
             <button
               onClick={() => handleJoinGroup(newGroup)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               Join
             </button>

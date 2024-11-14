@@ -1,22 +1,20 @@
 "use client";
+import { HomeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "./ui/navigation-menu";
 import { UserNav } from "./user-nav";
 
 const NavigationBar = () => {
   const [sessionStatus, setSessionStatus] = useState<boolean | null>(null);  // Track session status
-  const [loading, setLoading] = useState(true);  // Track loading state
   const [error, setError] = useState<string | null>(null);  // Track any errors
   const [user, setUser] = useState<{ givenName: string, email: string } | null>(null);  // Track user info
 
   useEffect(() => {
-    // Function to check session status via the API
     async function checkSession() {
       const token = localStorage.getItem("jwt"); // Retrieve JWT token stored in localStorage
 
       if (!token) {
         setSessionStatus(false); // No token, user is not authenticated
-        setLoading(false); // Stop loading
         return;
       }
 
@@ -29,7 +27,6 @@ const NavigationBar = () => {
           },
         });
 
-        // Handle API response
         const data = await response.json();
 
         if (response.ok) {
@@ -47,7 +44,6 @@ const NavigationBar = () => {
             const userData = await userResponse.json();
             if (userResponse.ok) {
               setUser(userData); // Set user data
-              console.log(userData);
             } else {
               setError("Failed to fetch user details");
             }
@@ -58,21 +54,11 @@ const NavigationBar = () => {
       } catch (err) {
         setError("Failed to check session status"); // Set error if fetch fails
         setSessionStatus(false); // Default to false if there's an error
-      } finally {
-        setLoading(false); // Stop loading after the request is completed
       }
     }
 
     checkSession(); // Call the checkSession function when component mounts
   }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-16 bg-blue-600 text-white">
-        <span>Loading...</span> {/* You can replace this with a spinner */}
-      </div>
-    ); // Show a loading message or spinner
-  }
 
   if (error) {
     return (
@@ -85,14 +71,24 @@ const NavigationBar = () => {
   return (
     <nav className="bg-gray-800 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
-        <div className="text-xl font-semibold">MyApp</div>
         <NavigationMenu>
-          <NavigationMenuList className="flex space-x-4">
+          {/* Left-side Navigation Links */}
+          <NavigationMenuList className="flex items-center space-x-6">
+            <div className="bg-white relative h-8 w-8 rounded-full flex items-center justify-center">
+              <NavigationMenuLink href="/" className="h-8 w-8 flex items-center justify-center">
+                <HomeIcon className="h-6 w-6 text-black" />
+              </NavigationMenuLink>
+            </div>
+            {/* You can add other left-side navigation links here */}
+          </NavigationMenuList>
+
+          {/* Right-side User Authentication Links */}
+          <NavigationMenuList className="flex items-center space-x-4 ml-auto">
             {!sessionStatus ? (
               <NavigationMenuItem>
                 <NavigationMenuLink
                   href="/login"
-                  className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500 transition duration-300"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-300 transform hover:scale-105"
                 >
                   Login
                 </NavigationMenuLink>

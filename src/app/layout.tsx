@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="en">
-      <body>
+      <body className="bg-gradient-to-b from-indigo-900 to-black text-white">
         <GoogleOAuthProvider clientId={clientId}>
           <NavigationBar />
           {children}
