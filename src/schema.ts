@@ -39,31 +39,60 @@ export const userGroupRelations = relations(userGroup, ({ one }) => ({
   })
 }))
 
-
 // Song Submissions Table
 export const submission = pgTable('submission', {
   id: serial('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => user.id),  // user_id should be of type 'text' to match 'user.id'
-  title: text('title').notNull(),
-  artist: text('artist').notNull(),
-  year: integer('year').notNull(),
+  userId: text('user_id').notNull().references(() => user.id), // User submitting the song
+  songId: integer('song_id').notNull().references(() => song.id), // Reference to the song table
+  groupId: text('group_id').notNull().references(() => group.id),
   points: integer('points').default(0), // Total points for the song, initially 0
   createdAt: timestamp('created_at').defaultNow(), // Time of submission
 });
+
 
 // Votes Table (Users vote on other users' submissions)
 export const vote = pgTable('vote', {
   id: serial('id').primaryKey(),
   userId: text('user_id').notNull().references(() => user.id), // Who is voting
-  submissionId: integer('submission_id').notNull().references(() => submission.id), // Which submission is voted on
+  submissionId: integer('submission_id').notNull().references(() => submission.id), // Reference to the submission
   points: integer('points').notNull(), // Points given to the submission
   createdAt: timestamp('created_at').defaultNow(), // When vote was cast
 });
 
-// List Table (Final list of songs for each group, ordered by total points)
-export const list = pgTable('list', {
+
+export const song = pgTable('song', {
   id: serial('id').primaryKey(),
-  groupId: text('group_id').notNull().references(() => group.id), // Group the list belongs to
-  submissionId: integer('submission_id').notNull().references(() => submission.id), // Submitted song included in the list
-  points: integer('points').notNull(), // Total points of the song
+  title: text('title').notNull(),
+  artist: text('artist').notNull(),
+  year: integer('year').notNull(),
 });
+
+// Submission Relations
+export const submissionRelations = relations(submission, ({ one, many }) => ({
+  song: one(song, {
+    fields: [submission.songId],
+    references: [song.id],
+  }),
+  group: one(group, {
+    fields: [submission.groupId],
+    references: [group.id]
+  }),
+  votes: many(vote), // A submission can have many votes
+}));
+
+// Vote Relations
+export const voteRelations = relations(vote, ({ one }) => ({
+  submission: one(submission, {
+    fields: [vote.submissionId],
+    references: [submission.id],
+  }),
+  user: one(user, {
+    fields: [vote.userId],
+    references: [user.id],
+  }),
+}));
+
+
+export const userRelations = relations(user, ({ many }) => ({
+  votes: many(vote), // A user can have many votes
+}));

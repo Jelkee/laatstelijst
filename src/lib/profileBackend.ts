@@ -1,6 +1,6 @@
 // /lib/profileBackend.ts
 import { DatabaseManager } from '@/db';
-import { user, userGroup } from '@/schema';
+import { group, user, userGroup } from '@/schema';
 import { eq } from 'drizzle-orm';
 import { isInGroup } from './permissions';
 
@@ -42,7 +42,7 @@ export async function getUserGroups(userId: string) {
     }
 
     // Fetch the groups associated with the user
-    const userGroups = await db.select({id: userGroup.groupId}).from(userGroup).where(eq(userGroup.userId, userRecord.id))
+    const userGroups = await db.select({id: userGroup.groupId, name: group.name}).from(userGroup).innerJoin(group, eq(group.id, userGroup.groupId)).where(eq(userGroup.userId, userRecord.id))
 
     if(userGroups.length === 0) {
       return [];
@@ -64,11 +64,14 @@ export async function joinGroup(userId: string, groupId: string) {
     const db = DatabaseManager.getDatabase();
 
     const inGroup = await isInGroup(userId, groupId);
+    console.log(inGroup);
     if (!inGroup) {
       await db.insert(userGroup).values({
         userId: userId,
         groupId: groupId,
       });
+    } else{
+      return({success: false, error: "You are already in that group"})
     }
 
     return({success: true});

@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Define the type for the decoded JWT payload
 interface CustomJwtPayload extends JwtPayload {
-  name: string;
+  givenName: string;
+  familyName: string;
   email: string;
 }
 
@@ -20,7 +21,6 @@ export async function GET(request: NextRequest) {
     // Extract the token from the Authorization header
     const token = authHeader.substring(7); // Removing 'Bearer ' prefix
 
-
     // Ensure that the JWT_SECRET environment variable is defined
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET is not defined.');
@@ -30,11 +30,11 @@ export async function GET(request: NextRequest) {
     // Verify the session token (JWT)
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as CustomJwtPayload;
 
-    // Assuming the token contains user info like name and email
-    const { name, email } = decoded;
+    // Extract user data from the decoded payload
+    const { givenName, familyName, email } = decoded;
 
     // Return the user's name and email
-    return NextResponse.json({ name, email });
+    return NextResponse.json({ givenName, familyName, email });
 
   } catch (error) {
     console.error('Error verifying session token:', error);

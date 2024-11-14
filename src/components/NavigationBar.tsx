@@ -7,7 +7,7 @@ const NavigationBar = () => {
   const [sessionStatus, setSessionStatus] = useState<boolean | null>(null);  // Track session status
   const [loading, setLoading] = useState(true);  // Track loading state
   const [error, setError] = useState<string | null>(null);  // Track any errors
-  const [user, setUser] = useState<{ name: string, email: string } | null>(null);  // Track user info
+  const [user, setUser] = useState<{ givenName: string, email: string } | null>(null);  // Track user info
 
   useEffect(() => {
     // Function to check session status via the API
@@ -47,6 +47,7 @@ const NavigationBar = () => {
             const userData = await userResponse.json();
             if (userResponse.ok) {
               setUser(userData); // Set user data
+              console.log(userData);
             } else {
               setError("Failed to fetch user details");
             }
@@ -97,8 +98,8 @@ const NavigationBar = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
             ) : (
-              user && user.name && user.email && (
-                <UserNav name={user.name} email={user.email} />
+              user && (
+                <UserNav name={user.givenName} email={user.email} />
               )
             )}
           </NavigationMenuList>
