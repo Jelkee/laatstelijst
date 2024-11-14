@@ -48,6 +48,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
         const submissionsData = await submissionRes.json();
         const votesData = await votesRes.json();
 
+        console.log("groupData:", groupData);
+        console.log("submissiondata: ", submissionsData)
+        console.log("votesdata", votesData)
+
         setGroup(groupData);
         setSubmissions(submissionsData);
         setVotes(votesData);
@@ -105,7 +109,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
                 <TableBody>
                   {submissions.map((submission) => (
                     <TableRow key={submission.id}>
-                      <TableCell>{submission.song.title}</TableCell>
+                      <TableCell>{submission.song?.title ?? "No Title"}</TableCell>
                       <TableCell className="text-green-600">{submission.points} points</TableCell>
                     </TableRow>
                   ))}
@@ -136,7 +140,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
                 <TableBody>
                   {votes.map((vote) => (
                     <TableRow key={vote.id}>
-                      <TableCell>{vote.song.title}</TableCell>
+                      <TableCell>{vote.song?.title ?? ""}</TableCell>
                       <TableCell className="text-blue-600">{vote.points} points</TableCell>
                     </TableRow>
                   ))}
