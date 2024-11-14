@@ -13,7 +13,7 @@ export const user = pgTable('user', {
 
 // Groups Table
 export const group = pgTable('group', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   createdAt: timestamp('created_at').defaultNow(), // Time group was created
 });
@@ -21,7 +21,7 @@ export const group = pgTable('group', {
 // User-Groups Table (Many-to-Many relation)
 export const userGroup = pgTable('user_group', {
   userId: text('user_id').notNull().references(() => user.id),
-  groupId: integer('group_id').notNull().references(() => group.id),
+  groupId: text('group_id').notNull().references(() => group.id),
   role: varchar('role', { length: 50 }).default('member'), // User's role in the group, e.g., member, admin
 });
 
@@ -48,7 +48,7 @@ export const vote = pgTable('vote', {
 // List Table (Final list of songs for each group, ordered by total points)
 export const list = pgTable('list', {
   id: serial('id').primaryKey(),
-  groupId: integer('group_id').notNull().references(() => group.id), // Group the list belongs to
+  groupId: text('group_id').notNull().references(() => group.id), // Group the list belongs to
   submissionId: integer('submission_id').notNull().references(() => submission.id), // Submitted song included in the list
   points: integer('points').notNull(), // Total points of the song
 });
