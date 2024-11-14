@@ -6,10 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 
 export default function Page({ params }: { params: { groupId: string } }) {
-
-  // Unwrap the params using React.use() to get groupId
-  const groupId = params.groupId;
-
+  
+  let groupId = params.groupId;
   const [group, setGroup] = useState<Group | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
