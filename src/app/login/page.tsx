@@ -1,5 +1,6 @@
 'use client';
 
+import { FloatingLoaderSpinner } from "@/components/FloatingLoaderSpinner";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
@@ -94,7 +95,7 @@ const Page: React.FC = () => {
   if (!isTokenChecked) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <span>Loading...</span>
+        <FloatingLoaderSpinner text="Loading information..."/>
       </div>
     );
   }
@@ -122,7 +123,7 @@ const Page: React.FC = () => {
             <>
               {loading ? (
                 <div className="flex justify-center items-center">
-                    <span className="visually-hidden">Loading...</span>
+                    <FloatingLoaderSpinner text="Loading page..." />
                 </div>
               ) : (
                 <div className="flex justify-center items-center">

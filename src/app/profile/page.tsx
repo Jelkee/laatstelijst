@@ -1,5 +1,6 @@
 "use client";
 import { Group, User } from "@/app/types"; // Import the types
+import { FloatingLoaderSpinner } from "@/components/FloatingLoaderSpinner";
 import { useEffect, useState } from "react";
 
 const ProfilePage = () => {
@@ -79,7 +80,7 @@ const ProfilePage = () => {
   };
 
   if (loading) {
-    return <div className="text-center text-lg text-white">Loading...</div>;
+    return <FloatingLoaderSpinner text="Loading profile..." />;
   }
 
   if (error) {

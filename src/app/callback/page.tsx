@@ -1,5 +1,6 @@
 'use client';
 
+import { FloatingLoaderSpinner } from '@/components/FloatingLoaderSpinner';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -54,7 +55,7 @@ const Callback = () => {
       {error ? (
         <p>{error}</p> // Display the error message if any
       ) : (
-        <p>Loading...</p> // Show loading text while waiting for the process
+        <FloatingLoaderSpinner text="Retrieving data..." />
       )}
     </div>
   );

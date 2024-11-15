@@ -1,6 +1,7 @@
 "use client";
 
 import { Group, Submission, Vote } from "@/app/types"; // Adjust according to your types
+import { FloatingLoaderSpinner } from "@/components/FloatingLoaderSpinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Importing Table components from ChadCN UI
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
@@ -70,7 +71,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }, [groupId]); // Trigger effect when `groupId` changes
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <FloatingLoaderSpinner text="Loading group information..."/>;
   }
 
   if (error) {
