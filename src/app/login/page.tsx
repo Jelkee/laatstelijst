@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
