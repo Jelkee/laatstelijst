@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Initialize Google OAuth2 client with your client ID from Google Developer Console
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "https://www.laatstelijst.nl/callback");
 
 export async function POST(request: NextRequest) {
   try {

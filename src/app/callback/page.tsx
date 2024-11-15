@@ -1,13 +1,12 @@
-// src/app/callback/page.tsx
+'use client';
 
-'use client';  // Ensure the component is client-side
-
-import { useRouter } from 'next/navigation'; // Use next/navigation for client-side routing
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const Callback = () => {
   const [isClient, setIsClient] = useState(false);
-  const router = useRouter(); // This now uses next/navigation
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     // Ensure this code runs only on the client-side
@@ -36,22 +35,32 @@ const Callback = () => {
               router.push('/profile');
             } else {
               console.error('Authentication failed:', data.error);
-              // Redirect to login with an error message (or handle error feedback)
+              setError('Authentication failed: ' + data.error || 'Unknown error');
               router.push('/login');
             }
           })
           .catch((error) => {
             console.error('Error during authentication:', error);
+            setError('An error occurred during authentication.');
             router.push('/login');
           });
       } else {
         // If no token, redirect to login
+        setError('No token found in URL.');
         router.push('/login');
       }
     }
   }, [isClient, router]);
 
-  return <div>Loading...</div>;
+  return (
+    <div>
+      {error ? (
+        <p>{error}</p>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
 };
 
 export default Callback;
