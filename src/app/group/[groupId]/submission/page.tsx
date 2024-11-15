@@ -4,14 +4,14 @@ import { FloatingLoaderSpinner } from "@/components/FloatingLoaderSpinner";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export default function VotingPage({params}: {params: {groupId: string}}){
-
+export default function VotingPage({ params }: { params: { groupId: string } }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [isTokenChecked, setIsTokenChecked] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(""); // For debouncing
   const [searchResults, setSearchResults] = useState<Song[]>([]);
   const [submissionList, setSubmissionList] = useState<Song[]>([]);
   const [points, setPoints] = useState<{ [key: string]: number }>({});
@@ -19,45 +19,52 @@ export default function VotingPage({params}: {params: {groupId: string}}){
   const [error, setError] = useState("");
 
   const router = useRouter();
-  
-useEffect(() => {
-  const token = localStorage.getItem("jwt");
 
-  if (token) {
-    fetch("/api/session", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.authenticated) {
-          setIsAuthenticated(true);
+  // UseEffect for Debouncing
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm); // Update debounced term after a delay
+    }, 500); // 500ms delay
 
-          const userId = data.userId;
-          console.log("User ID:", userId);
-          setUserId(userId);
-        } else {
+    return () => clearTimeout(delayDebounceFn); // Cleanup previous timer
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+
+    if (token) {
+      fetch("/api/session", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+
+            const userId = data.userId;
+            console.log("User ID:", userId);
+            setUserId(userId);
+          } else {
+            setIsAuthenticated(false);
+            router.push("/login");
+            localStorage.removeItem("jwt");
+          }
+        })
+        .catch(() => {
           setIsAuthenticated(false);
-          router.push("/login")
+          router.push("/login");
           localStorage.removeItem("jwt");
-        }
-      })
-      .catch(() => {
-        setIsAuthenticated(false);
-        router.push("/login")
-        localStorage.removeItem("jwt");
-      })
-      .finally(() => {
-        setIsTokenChecked(true);
-      });
-  } else {
-    setIsTokenChecked(true);
-  }
-}, [router]);
-
-
+        })
+        .finally(() => {
+          setIsTokenChecked(true);
+        });
+    } else {
+      setIsTokenChecked(true);
+    }
+  }, [router]);
 
   const fetchSpotifyToken = async () => {
     const clientId = "2e3389690b7b4d539eb8c8749e3c17cb";
@@ -77,7 +84,7 @@ useEffect(() => {
     return response.data.access_token;
   };
 
-  const searchSongs = async (query: string) => {
+  const searchSongs = useCallback(async (query: string) => {
     if (!query) {
       setSearchResults([]); // Clear search results if the search term is empty
       return;
@@ -97,7 +104,16 @@ useEffect(() => {
     }));
 
     setSearchResults(results);
-  };
+  }, []);
+
+  // Trigger search only when debouncedSearchTerm changes
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      searchSongs(debouncedSearchTerm);
+    } else {
+      setSearchResults([]);
+    }
+  }, [debouncedSearchTerm, searchSongs]);
 
   const handleAddSong = (song: Song) => {
     if (submissionList.length >= 10) {
@@ -109,7 +125,7 @@ useEffect(() => {
       return;
     }
     setSubmissionList([...submissionList, song]);
-    setSearchResults([]); 
+    setSearchResults([]);
     setSearchTerm("");
   };
 
@@ -131,40 +147,40 @@ useEffect(() => {
       alert("You must add exactly 10 songs!");
       return;
     }
-  
+
     // Check for errors (e.g., points not unique)
     if (error) {
       alert("Resolve errors before submitting!");
       return;
     }
-  
+
     // Calculate the total points to ensure they sum to 55
     const totalPoints = Object.values(points).reduce((sum, point) => sum + point, 0);
     if (totalPoints !== 55) {
       alert("The total points must be exactly 55!");
       return;
     }
-  
+
     // Prepare the final submission data
     const finalSubmission = submissionList.map((song) => ({
       ...song,
       points: points[song.id] || 0,
     }));
-  
-    const token = localStorage.getItem('jwt');
+
+    const token = localStorage.getItem("jwt");
 
     if (!token) {
       alert("You must be logged in to submit the song list.");
       return;
     }
-  
+
     // Send data to the backend API via POST request with Authorization header
     try {
-      const response = await fetch('/api/submitSongList', {
-        method: 'POST',
+      const response = await fetch("/api/submitSongList", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           list: finalSubmission,
@@ -172,7 +188,7 @@ useEffect(() => {
           userId: userId,
         }),
       });
-  
+
       // Handle response
       if (!response.ok) {
         const errorData = await response.json();
@@ -182,17 +198,13 @@ useEffect(() => {
         alert(responseData.message); // Success message from the API
       }
     } catch (error) {
-      console.error('Error during submission:', error);
-      alert('An error occurred while submitting. Please try again later.');
+      console.error("Error during submission:", error);
+      alert("An error occurred while submitting. Please try again later.");
     }
   };
-  
-  
 
-  if (loading){
-    return(
-      <FloatingLoaderSpinner text="Loading songs..." />
-    )
+  if (loading) {
+    return <FloatingLoaderSpinner text="Loading songs..." />;
   }
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8 overflow-y-auto max-h-[calc(100vh-100px)]">
@@ -203,10 +215,7 @@ useEffect(() => {
         <input
           type="text"
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            searchSongs(e.target.value);  // Trigger search when the input changes
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search for a song..."
           className="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500"
         />
@@ -216,7 +225,9 @@ useEffect(() => {
               key={song.id}
               className="flex justify-between items-center bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition duration-300"
             >
-              <span className="text-lg text-gray-700">{song.title} by {song.artist} ({song.year})</span>
+              <span className="text-lg text-gray-700">
+                {song.title} by {song.artist} ({song.year})
+              </span>
               <button
                 onClick={() => handleAddSong(song)}
                 className="bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
@@ -272,4 +283,4 @@ useEffect(() => {
       </Button>
     </div>
   );
-};
+}
