@@ -11,11 +11,10 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onLoginSuccess, o
   return (
     <GoogleLogin
       onSuccess={onLoginSuccess}
-      onError={() => { // Changed to no argument function
-        console.error("Login Error");
+      onError={() => { // Function that does not take any arguments
+        console.error("Login Error occurred");
         if (onLoginFailure) {
-          // Call the failure handler if provided
-          onLoginFailure("Login failed"); // or you can pass an error message or custom error
+          onLoginFailure("Login failed"); // You can pass a custom error message
         }
       }}
     />

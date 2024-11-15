@@ -77,7 +77,7 @@ const Page: React.FC = () => {
 
   // Handle login failure
   const handleLoginFailure = (error: any) => {
-    console.log("Login failed:", error);
+    console.error("Login failed:", error);
     setError("Login failed. Please try again.");
   };
 
