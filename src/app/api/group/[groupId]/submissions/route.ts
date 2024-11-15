@@ -1,6 +1,6 @@
 import { DatabaseManager } from "@/db";
 import { verifyToken } from "@/lib/auth";
-import { submission } from "@/schema"; // Assuming this is the schema for submissions
+import { song, submission } from "@/schema"; // Assuming this is the schema for submissions
 import { eq } from "drizzle-orm";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -28,8 +28,8 @@ export async function GET(req: NextRequest, { params }: { params: { groupId: str
     // Step 3: Fetch submissions from the database
     const db = DatabaseManager.getDatabase();
     const result = await db
-      .select({ id: submission.id, songId: submission.songId, points: submission.points })
-      .from(submission)
+      .select({ id: submission.id, points: submission.points, song: song })
+      .from(submission).innerJoin(song, eq(submission.songId, song.id))
       .where(eq(submission.groupId, groupId)); // Use the converted number value here
 
     // Step 4: Return the appropriate response

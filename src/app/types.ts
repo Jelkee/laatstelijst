@@ -17,7 +17,17 @@ export interface Group {
 export interface Vote {
   id: number;
   voter: string;
-  song: Song;
+  submissionId: number;
+  points: number;
+}
+
+export interface YourVote {
+  id: number;
+  voter: string;
+  submissionId: number;
+  submissionTitle: string;
+  submissionArtist: string;
+  submissionYear: number;
   points: number;
 }
 
@@ -32,6 +42,17 @@ export interface Submission {
   id: number;
   submittor: string;
   song: Song;
+  points: number;
+  groupId: string;
+}
+
+export interface SubmissionSong {
+  id: number;
+  submittor: string;
+  title: string;
+  artist: string;
+  year: number;
+  songId: number;
   points: number;
   groupId: string;
 }

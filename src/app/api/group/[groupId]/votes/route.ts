@@ -1,6 +1,6 @@
 import { DatabaseManager } from "@/db";
 import { verifyToken } from "@/lib/auth";
-import { submission, vote } from "@/schema"; // Assuming this is the schema for votes
+import { song, submission, vote } from "@/schema"; // Assuming this is the schema for votes
 import { eq } from "drizzle-orm";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -30,9 +30,9 @@ export async function GET(req: NextRequest, { params }: { params: { groupId: str
     // Step 3: Fetch votes from the database
     const db = DatabaseManager.getDatabase();
     const result = await db
-      .select({ id: vote.id, submissionId: vote.submissionId, points: vote.points })
+      .select({ id: vote.id, submissionTitle: song.title, submissionArtist: song.artist, submissionId: vote.submissionId, submissionYear: song.year, points: vote.points })
       .from(vote)
-      .innerJoin(submission, eq(submission.id, vote.submissionId))
+      .innerJoin(submission, eq(submission.id, vote.submissionId)).innerJoin(song, eq(song.id, submission.songId))
       .where(eq(submission.groupId, groupId)); // groupId used directly here
 
     // Step 4: Return the appropriate response
